@@ -1,0 +1,148 @@
+{
+    "packages" : [
+        {
+            "id" : 1,
+            "dimentions" : {
+                "w" : 1,
+                "l" : 1,
+                "h" : 1
+            },
+            "orientation" : {
+                "w" : "x",
+                "l" : "y",
+                "h" : "z"
+            },
+            "value" : 50,
+            "weight" : 100,
+            "is_fragile" : false,
+            "ETA" : 3
+        },
+        {
+            "id" : 2,
+            "dimentions" : {
+                "w" : 2,
+                "l" : 2,
+                "h" : 2
+            },
+            "orientation" : {
+                "w" : "x",
+                "l" : "y",
+                "h" : "z"
+            },
+            "value" : 50,
+            "weight" : 50,
+            "is_fragile" : false,
+            "ETA" : 3
+        },
+        {
+            "id" : 3,
+            "dimentions" : {
+                "w" : 1,
+                "l" : 2,
+                "h" : 1
+            },
+            "orientation" : {
+                "w" : "x",
+                "l" : "y",
+                "h" : "z"
+            },
+            "value" : 80,
+            "weight" : 75,
+            "is_fragile" : false,
+            "ETA" : 4
+        },
+        {
+            "id" : 4,
+            "dimentions" : {
+                "w" : 2,
+                "l" : 1,
+                "h" : 2
+            },
+            "orientation" : {
+                "w" : "x",
+                "l" : "y",
+                "h" : "z"
+            },
+            "value" : 120,
+            "weight" : 60,
+            "is_fragile" : true,
+            "ETA" : 5
+        },
+        {
+            "id" : 5,
+            "dimentions" : {
+                "w" : 1,
+                "l" : 1,
+                "h" : 3
+            },
+            "orientation" : {
+                "w" : "x",
+                "l" : "y",
+                "h" : "z"
+            },
+            "value" : 90,
+            "weight" : 40,
+            "is_fragile" : false,
+            "ETA" : 2
+        },
+        {
+            "id" : 6,
+            "dimentions" : {
+                "w" : 2,
+                "l" : 1,
+                "h" : 1
+            },
+            "orientation" : {
+                "w" : "x",
+                "l" : "y",
+                "h" : "z"
+            },
+            "value" : 65,
+            "weight" : 30,
+            "is_fragile" : false,
+            "ETA" : 6
+        },
+        {
+            "id" : 7,
+            "dimentions" : {
+                "w" : 1,
+                "l" : 2,
+                "h" : 2
+            },
+            "orientation" : {
+                "w" : "x",
+                "l" : "y",
+                "h" : "z"
+            },
+            "value" : 110,
+            "weight" : 25,
+            "is_fragile" : true,
+            "ETA" : 7
+        },
+        {
+            "id" : 8,
+            "dimentions" : {
+                "w" : 3,
+                "l" : 1,
+                "h" : 1
+            },
+            "orientation" : {
+                "w" : "x",
+                "l" : "y",
+                "h" : "z"
+            },
+            "value" : 70,
+            "weight" : 35,
+            "is_fragile" : false,
+            "ETA" : 8
+        }
+    ],
+    "truck" : {
+        "dimentions" : {
+            "w" : 5,
+            "l" : 5,
+            "h" : 5
+        },
+        "max_capacity" : 500
+    }
+}
