@@ -23,6 +23,28 @@ def bukittinggi(initial_state):
     total_time = ttime_end-ttime_start
     return {"state": curr, "time_per_iter": time_per_iter, "ttime": total_time, "iter_count": iter_count}
 
+# HC sideways move
+def bukitsamping(initial_state):
+    curr = initial_state.copy()
+    iter_count = 0
+    time_per_iter = []
+    ttime_start = time.time()
+    while True:
+        time_start = time.time()
+        neigbour = None
+        succs = generate_all_succs(curr)
+        if len(succs) == 0: break
+        best_successor = max(succs, key=lambda succ: succ.value)
+        if best_successor.value < curr.value:
+            break
+        curr = best_successor
+        iter_count += 1
+        time_end = time.time()
+        time_per_iter.append((time_end-time_start))
+    ttime_end = time.time()
+    total_time = ttime_end-ttime_start
+    return {"state": curr, "time_per_iter": time_per_iter, "ttime": total_time, "iter_count": iter_count}
+
 # generate all successors
 def generate_all_succs(state) -> list:
     res = []
