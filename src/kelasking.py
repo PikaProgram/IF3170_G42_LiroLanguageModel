@@ -1,3 +1,4 @@
+from copy import deepcopy
 import numpy as np
 
 
@@ -22,7 +23,6 @@ class package:
         self.weight = weight                # int/float
         self.is_fragile = is_fragile        # bool
         self.ETA = ETA                      # int
-
     def rotate(self, sumbu):
         self.orientation = rotated_orientation(self.orientation, sumbu)
 
@@ -34,7 +34,7 @@ class package:
             "value": self.value,
             "weight": self.weight,
             "is_fragile": self.is_fragile,
-            "ETA": self.ETA
+            "ETA": self.ETA,
         }
 
 
