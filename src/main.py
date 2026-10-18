@@ -1,5 +1,5 @@
 from kelasking import package, truck, state, rotated_orientation
-from bukit import steepest_ascent
+from algorithms.hillclimbing import steepest_ascent
 import json, os, random, time
 
 SEED = 42
