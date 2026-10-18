@@ -1,3 +1,4 @@
+from copy import deepcopy
 import numpy as np
 
 class package:
@@ -9,6 +10,7 @@ class package:
         self.weight = weight                # int/float ig
         self.is_fragile = is_fragile        # bool
         self.ETA = ETA                      # int
+        self.location = None
     
     def rotate(self, sumbu):
         if(sumbu=="x"):
@@ -26,7 +28,8 @@ class package:
             "value": self.value,
             "weight": self.weight,
             "is_fragile": self.is_fragile,
-            "ETA": self.ETA
+            "ETA": self.ETA,
+            "location": self.location
         }
 
 class truck:
@@ -46,10 +49,6 @@ class state:
         self.max_weight = max_weight
         self.current_weight = 0
         self.value = 0
-    
-    def __get_fragile_by_id(self, id) -> bool:
-        for package in self.inserted_pack:
-            if(package.id == id): return package.is_fragile
         
     def __validate_placement(self, package, coords) -> bool:
         if(self.current_weight + package.weight > self.max_weight):
@@ -126,8 +125,9 @@ class state:
         if(floating_indices == footprint): return False
         return True
     
+    # must be a package in self.remaining_pack
     def place_package(self, package, coords) -> bool:
-        if(package in self.inserted_pack): 
+        if(package in self.inserted_pack or package not in self.remaining_pack): 
             return False
         if(self.__validate_placement(package,coords)):
             if(package.orientation["w"]=="x"):
@@ -152,7 +152,14 @@ class state:
                         for k in range(coords["x"], coords["x"] + package.dimentions["h"]):
                             self.space[i, j, k] = package.id
             self.inserted_pack.append(package)
+            if package in self.remaining_pack:
+                self.remaining_pack.remove(package)
             self.current_weight+=package.weight
+            package.location = coords
+            
+            # calculate objective function, nanti ganti kalau mau
+            self.value += package.value
+            
             return True
         else:
             return False
@@ -165,6 +172,23 @@ class state:
                         self.space[i,j,k]=0
         if package in self.inserted_pack:
             self.inserted_pack.remove(package)
-            self.remaining_pack.append(package)
+            self.value -= package.value
+            self.current_weight -= package.weight
+            package.location = None
+            if package not in self.remaining_pack:
+                self.remaining_pack.append(package)
     
+    # util
     
+    def __get_fragile_by_id(self, id) -> bool:
+        for package in self.inserted_pack:
+            if(package.id == id): return package.is_fragile
+    
+    def copy(self):
+        return deepcopy(self)
+    
+    def get_pack_by_id(self, id) -> package:
+        for package in self.inserted_pack:
+            if(package.id ==id): return package
+        for package in self.remaining_pack:
+            if(package.id == id): return package

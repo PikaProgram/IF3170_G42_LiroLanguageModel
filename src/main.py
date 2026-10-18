@@ -1,4 +1,5 @@
 from kelasking import package, truck, state
+from bukit import bukittinggi
 import json, random
 
 packages = []
@@ -96,9 +97,7 @@ def create_initial_state(trukkun, packages)->state:
                     if packed: break
                 if packed: break
         
-        if packed:
-            result.remaining_pack.remove(this_package)
-        else:
+        if not packed:
             this_package.orientation = original_orientation
         try_packages.remove(this_package)
     
@@ -110,6 +109,10 @@ def create_initial_state(trukkun, packages)->state:
         p.jason_susanto() for p in result.remaining_pack
     ]
     
+    curr_weight = 0
+    for pack in result.inserted_pack:
+        curr_weight+=pack.weight
+    
     json_data = {
         "packages_outside": package_out,
         "truck": {
@@ -117,7 +120,9 @@ def create_initial_state(trukkun, packages)->state:
             "max_capacity": trukkun.max_capacity,
             "space": result.space.tolist(),
             "inserted_packages": package_in
-        }
+        },
+        "current_weight": curr_weight,
+        "value": result.value
     }
     
     with open("out_test.json", "w") as f:
@@ -129,6 +134,8 @@ def create_initial_state(trukkun, packages)->state:
 load("config_test.json")
 
 test = create_initial_state(initial_tk, packages)
+a = bukittinggi(test)
+print(a["state"].value)
 
 # Create initial state
 # Do HC or SA or GA -- Masing2 1 file .py, final state dibikin di sini
