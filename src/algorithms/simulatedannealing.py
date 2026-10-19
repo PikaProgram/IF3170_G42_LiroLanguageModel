@@ -1,4 +1,3 @@
-from copy import deepcopy
 from kelasking import eff_dims, rotated_orientation
 import random, math
 
@@ -62,22 +61,25 @@ def simulated_annealing(initial):
     probability_history = []
     stuck_history = []
     iterations = 0
-
+    
     while temp > minimum_temp:
         successors = list(hello_neighbor(cur))
         if not successors:
             break
-
         curr_value = cur.objective()
         best_neighbor_value = max(s.objective() for s in successors)
+            
         stuck_history.append(best_neighbor_value <= curr_value)
 
         succ = random.choice(successors)
         delta_e = succ.objective() - curr_value
         probability = math.exp(delta_e / temp)
 
-        if random.random() < probability:
-            cur = succ
+        if delta_e > 0:
+            cur = succ    
+        else: 
+            if random.random() < probability:
+                cur = succ        
 
         history.append(cur.objective())
         probability_history.append(probability)

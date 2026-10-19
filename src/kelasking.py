@@ -120,6 +120,7 @@ class state:
             return False
         self._write(pkg, orientation, coords)
         self.inserted_pack.append(pkg)
+        self.remaining_pack.remove(pkg)
         self.current_weight += pkg.weight
         self.coords[pkg.id] = dict(coords)
         return True
@@ -130,6 +131,6 @@ class state:
             return
         eff = eff_dims(pkg.dimentions, pkg.orientation)
         self.space[c["z"]:c["z"] + eff["z"], c["y"]:c["y"] + eff["y"], c["x"]:c["x"] + eff["x"]] = None
+        self.remaining_pack.append(pkg)
         self.inserted_pack.remove(pkg)
         self.current_weight -= pkg.weight
-        self.remaining_pack.append(pkg)

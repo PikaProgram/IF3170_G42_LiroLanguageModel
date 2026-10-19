@@ -1,5 +1,6 @@
 from kelasking import package, truck, state, rotated_orientation
 from algorithms.hillclimbing import steepest_ascent
+from algorithms.simulatedannealing import simulated_annealing
 import json, os, random, time
 
 SEED = 42
@@ -18,7 +19,7 @@ def load(path):
 
 
 def create_initial_state(trukkun, packages) -> state:
-    result = state(trukkun.dimentions, [], packages, trukkun.max_capacity)
+    result = state(trukkun.dimentions, [], packages.copy(), trukkun.max_capacity)
     try_packages = packages.copy()
     while try_packages:
         this_package = try_packages.pop(random.randrange(len(try_packages)))
@@ -43,9 +44,7 @@ def create_initial_state(trukkun, packages) -> state:
                     if packed: break
                 if packed: break
             if packed: break
-        if packed:
-            result.remaining_pack.remove(this_package)
-        else:
+        if not packed:
             this_package.orientation = base
     return result
 
@@ -64,7 +63,7 @@ random.seed(SEED)
 initial = create_initial_state(initial_tk, packages)
 
 start = time.perf_counter()
-final, history, iterations = steepest_ascent(initial)
+final, history, probability_history, stuck_history, iterations = simulated_annealing(initial)
 duration = time.perf_counter() - start
 
 record = {
