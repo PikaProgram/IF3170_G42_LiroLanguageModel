@@ -79,11 +79,8 @@ def hello_neighbor(cur):
     return None
 
 
-def simulated_annealing(initial):
+def simulated_annealing(initial, temp=100.0, cooling_rate=0.995, minimum_temp=0.01):
     cur = initial
-    temp = 100.0
-    cooling_rate = 0.995
-    minimum_temp = 0.01
     history = [cur.objective()]
     probability_history = []
     stuck_history = []
