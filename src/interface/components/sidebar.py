@@ -7,7 +7,9 @@ DEFAULT_CONFIG = Path(__file__).parents[2] / "config_test.json"
 
 ALGORITHMS = {
     "hc": {"label": "HC steepest-ascent", "record": "hill_climbing_steepest_ascent"},
+    "hc_sideways": {"label": "HC sideways move", "record": "hill_climbing_sideways_move"},
     "sa": {"label": "Simulated annealing", "record": "simulated_annealing"},
+    "ga": {"label": "Genetic algorithm", "record": "genetic_algorithm"},
 }
 
 _PKG_FIELDS = ("id", "dimentions", "orientation",
@@ -116,6 +118,10 @@ def init_state():
     ss["sa_temp"] = 100.0
     ss["sa_cooling"] = 0.995
     ss["sa_min_temp"] = 0.01
+    ss["hc_max_sideways"] = 100
+    ss["ga_population"] = 50
+    ss["ga_generations"] = 100
+    ss["ga_mutation"] = 0.05
 
 
 def truck_fields():
@@ -205,13 +211,24 @@ def _algorithm_section():
     st.subheader("Algorithm")
     st.selectbox("Algorithm", options=list(ALGORITHMS),
                  format_func=lambda a: ALGORITHMS[a]["label"], key="algo")
-    if st.session_state["algo"] == "sa":
+    algo = st.session_state["algo"]
+    if algo == "sa":
         st.number_input("Initial temperature", min_value=0.01,
                         step=0.01, key="sa_temp")
         st.number_input("Cooling rate", min_value=0.0001, max_value=0.9999,
                         step=0.0001, key="sa_cooling")
         st.number_input("Minimum temperature", min_value=0.01,
                         step=0.01, key="sa_min_temp")
+    elif algo == "hc_sideways":
+        st.number_input("Max sideways moves", min_value=1, step=1,
+                        key="hc_max_sideways")
+    elif algo == "ga":
+        st.number_input("Population size", min_value=2, step=1,
+                        key="ga_population")
+        st.number_input("Generations", min_value=1, step=1,
+                        key="ga_generations")
+        st.number_input("Mutation rate", min_value=0.0, max_value=1.0,
+                        step=0.01, key="ga_mutation")
     else:
         st.caption("Steepest ascent takes no parameters.")
 
@@ -240,5 +257,13 @@ def render_sidebar():
                 "temp": float(st.session_state["sa_temp"]),
                 "cooling_rate": float(st.session_state["sa_cooling"]),
                 "minimum_temp": float(st.session_state["sa_min_temp"]),
+            }
+        elif algo == "hc_sideways":
+            params = {"max_sideways": int(st.session_state["hc_max_sideways"])}
+        elif algo == "ga":
+            params = {
+                "population_size": int(st.session_state["ga_population"]),
+                "generations": int(st.session_state["ga_generations"]),
+                "mutation_rate": float(st.session_state["ga_mutation"]),
             }
         return {"algorithm": algo, "params": params}

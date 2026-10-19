@@ -11,6 +11,8 @@ from interface.components.sidebar import ALGORITHMS, init_state, render_sidebar,
 from kelasking import package, truck, state, rotated_orientation
 from algorithms.steepestascent import steepest_ascent
 from algorithms.simulatedannealing import simulated_annealing
+from algorithms.sidewaysmove import hill_climbing_sideways
+from algorithms.geneticalgorithm import genetic_algorithm
 
 SEED = 42
 
@@ -77,10 +79,18 @@ def run_algorithm(req):
     with st.spinner("Running algorithm..."):
         initial = build_initial(tk, st.session_state["packages"])
         started = time.perf_counter()
+        average_history = None
         if req["algorithm"] == "hc":
             final, history, iterations = steepest_ascent(initial)
+        elif req["algorithm"] == "hc_sideways":
+            final, history, iterations = hill_climbing_sideways(
+                initial, **req["params"])
+        elif req["algorithm"] == "sa":
+            final, history, _, _, iterations = simulated_annealing(
+                initial, **req["params"])
         else:
-            final, history, _, _, iterations = simulated_annealing(initial, **req["params"])
+            final, history, average_history, _, iterations = genetic_algorithm(
+                initial, **req["params"])
         duration = time.perf_counter() - started
 
     meta = ALGORITHMS[req["algorithm"]]
@@ -94,6 +104,8 @@ def run_algorithm(req):
         "initial_state": aaron_leonhart(initial),
         "final_state": aaron_leonhart(final),
     }
+    if average_history is not None:
+        record["average_objective_history"] = average_history
     os.makedirs("./output", exist_ok=True)
     stamp = time.strftime("%Y%m%d-%H%M%S")
     with open(f"./output/{meta['record']}_{stamp}.json", "w") as f:
@@ -115,7 +127,7 @@ def result_summary(result):
                f"{result['iterations']} iterations, {result['duration']:.4f}s")
     p = result["params"]
     if p:
-        summary += f" · T0={p['temp']}, cooling={p['cooling_rate']}, T_min={p['minimum_temp']}"
+        summary += " · " + ", ".join(f"{k}={v}" for k, v in p.items())
     return summary
 
 

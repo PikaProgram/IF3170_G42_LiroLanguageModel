@@ -1,6 +1,6 @@
 import copy
 import random
-from kelasking import eff_dims, rotated_orientation, state
+from kelasking import eff_dims, rotated_orientation, state, truck
 
 def _orientations(pkg):
     base = dict(pkg.orientation)
@@ -169,8 +169,7 @@ def fitness(chromosome):
     return value - penalty * violations
 
 # rng select parent
-def _select(population):
-    scores = [fitness(chromosome) for chromosome in population]
+def _select(population, scores):
     minimum = min(scores)
     weights = [score - minimum for score in scores]
 
@@ -188,18 +187,21 @@ def _select(population):
 
     return population[-1]
 
-def genetic_algorithm(truckkun, packages, N_population=500, N_iter=1000, mutation_rate=0.05):
-    population = create_initial_population(truckkun,packages,N_population,)
-    
-    max_objective_history = [max(chromosome.objective() for chromosome in population)]
-    average_objective_history = [sum(chromosome.objective() for chromosome in population) / N_population]
+def genetic_algorithm(initial, population_size=50, generations=100, mutation_rate=0.05):
+    trukkun = truck(initial.dimentions, initial.max_weight)
+    packages = initial.inserted_pack + initial.remaining_pack
+    population = create_initial_population(trukkun, packages, population_size)
+    population[0] = initial.copy()
 
-    for i in range(N_iter):
-        print(f"iter: {i}")
-        new_population = [max(population, key=fitness).copy()]
-        while len(new_population) < N_population:
-            parent_a = _select(population)
-            parent_b = _select(population)
+    max_objective_history = [max(chromosome.objective() for chromosome in population)]
+    average_objective_history = [sum(chromosome.objective() for chromosome in population) / population_size]
+
+    for _ in range(generations):
+        scores = [fitness(chromosome) for chromosome in population]
+        new_population = [population[scores.index(max(scores))].copy()]
+        while len(new_population) < population_size:
+            parent_a = _select(population, scores)
+            parent_b = _select(population, scores)
             child = kawin(parent_a, parent_b)
             if random.random() < mutation_rate:
                 child = mutate(child)
@@ -207,10 +209,7 @@ def genetic_algorithm(truckkun, packages, N_population=500, N_iter=1000, mutatio
         population = new_population
         objectives = [chromosome.objective() for chromosome in population]
         max_objective_history.append(max(objectives))
-        average_objective_history.append(sum(objectives) / N_population)
-        print(f"max value: {max_objective_history[i]}")
-        print(f"avg value: {average_objective_history[i]}")
-        print(f"------------------------------------------")
+        average_objective_history.append(sum(objectives) / population_size)
 
     final = max(population, key=fitness)
-    return final, max_objective_history, average_objective_history, N_population, N_iter
+    return final, max_objective_history, average_objective_history, population_size, generations
