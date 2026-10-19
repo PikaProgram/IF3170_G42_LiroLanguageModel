@@ -1,4 +1,3 @@
-
 import plotly.graph_objects as go
 from kelasking import eff_dims, state as State, truck as Truck
 
