@@ -1,26 +1,17 @@
-from interface.main import Visualizer
-from kelasking import package, truck, state, rotated_orientation
-from algorithms.hillclimbing import steepest_ascent
-from algorithms.simulatedannealing import simulated_annealing
 import json
 import os
 import random
 import time
 
+import streamlit as st
+
+from interface.main import Visualizer
+from interface.components.sidebar import ALGORITHMS, init_state, render_sidebar, truck_fields
+from kelasking import package, truck, state, rotated_orientation
+from algorithms.hillclimbing import steepest_ascent
+from algorithms.simulatedannealing import simulated_annealing
+
 SEED = 42
-
-packages = []
-initial_tk = truck({"w": 0, "l": 0, "h": 0}, 0)
-
-
-def load(path):
-    global initial_tk
-    with open(path, "r") as file:
-        j = json.load(file)
-    for pack in j["packages"]:
-        packages.append(package(pack["id"], pack["dimentions"], pack["orientation"],
-                        pack["value"], pack["weight"], pack["is_fragile"], pack["ETA"]))
-    initial_tk = truck(j["truck"]["dimentions"], j["truck"]["max_capacity"])
 
 
 def create_initial_state(trukkun, packages) -> state:
@@ -71,33 +62,74 @@ def aaron_leonhart(s):
     }
 
 
-load("./src/config_test.json")
-random.seed(SEED)
-initial = create_initial_state(initial_tk, packages)
+def build_initial(tk, packages_raw) -> state:
+    random.seed(SEED)
+    objs = [package(p["id"], dict(p["dimentions"]), dict(p["orientation"]),
+                    p["value"], p["weight"], p["is_fragile"], p["ETA"])
+            for p in packages_raw]
+    return create_initial_state(tk, objs)
 
-# final, history, iterations = steepest_ascent(initial)
 
-print("start")
-start = time.perf_counter()
-final, history, probability_history, stuck_history, iterations = simulated_annealing(
-    initial)
-duration = time.perf_counter() - start
-print("end")
+def run_algorithm(req):
+    fields = truck_fields()
+    tk = truck({k: fields[k] for k in ("w", "l", "h")}, fields["max_capacity"])
+    with st.spinner("Running algorithm..."):
+        initial = build_initial(tk, st.session_state["packages"])
+        started = time.perf_counter()
+        if req["algorithm"] == "hc":
+            final, history, iterations = steepest_ascent(initial)
+        else:
+            final, history, _, _, iterations = simulated_annealing(initial, **req["params"])
+        duration = time.perf_counter() - started
 
-record = {
-    "algorithm": "hill_climbing_steepest_ascent",
-    "seed": SEED,
-    "duration_seconds": round(duration, 4),
-    "iterations": iterations,
-    "objective_history": history,
-    "initial_state": aaron_leonhart(initial),
-    "final_state": aaron_leonhart(final),
-}
+    meta = ALGORITHMS[req["algorithm"]]
+    record = {
+        "algorithm": meta["record"],
+        "params": req["params"],
+        "seed": SEED,
+        "duration_seconds": round(duration, 4),
+        "iterations": iterations,
+        "objective_history": history,
+        "initial_state": aaron_leonhart(initial),
+        "final_state": aaron_leonhart(final),
+    }
+    os.makedirs("./output", exist_ok=True)
+    stamp = time.strftime("%Y%m%d-%H%M%S")
+    with open(f"./output/{meta['record']}_{stamp}.json", "w") as f:
+        f.write(json.dumps(record, indent=4))
 
-os.makedirs("./output", exist_ok=True)
-stamp = time.strftime("%Y%m%d-%H%M%S")
-with open(f"./output/hc_steepest_{stamp}.json", "w") as f:
-    f.write(json.dumps(record, indent=4))
+    st.session_state["result"] = {
+        "label": meta["label"],
+        "params": req["params"],
+        "final": final,
+        "objective": final.objective(),
+        "iterations": iterations,
+        "duration": duration,
+    }
 
-visualizer = Visualizer(final, truck=initial_tk)
-visualizer.display()
+
+def result_summary(result):
+    summary = (f"{result['label']} — objective {result['objective']}, "
+               f"{result['iterations']} iterations, {result['duration']:.4f}s")
+    p = result["params"]
+    if p:
+        summary += f" · T0={p['temp']}, cooling={p['cooling_rate']}, T_min={p['minimum_temp']}"
+    return summary
+
+
+init_state()
+requested = render_sidebar()
+if requested:
+    run_algorithm(requested)
+
+fields = truck_fields()
+tk = truck({k: fields[k] for k in ("w", "l", "h")}, fields["max_capacity"])
+view_key = json.dumps([st.session_state["packages"], fields], sort_keys=True)
+if st.session_state.get("view_key") != view_key:
+    st.session_state["view_initial"] = build_initial(tk, st.session_state["packages"])
+    st.session_state["view_key"] = view_key
+
+result = st.session_state.get("result")
+graph_state = result["final"] if result else st.session_state["view_initial"]
+summary = result_summary(result) if result else None
+Visualizer(graph_state, truck=tk, summary=summary).display()
