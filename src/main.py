@@ -1,3 +1,4 @@
+from interface.main import Visualizer
 from kelasking import package, truck, state, rotated_orientation
 from algorithms.hillclimbing import steepest_ascent
 from algorithms.simulatedannealing import simulated_annealing
@@ -58,13 +59,17 @@ def aaron_leonhart(s):
     }
 
 
-load("config_test.json")
+load("./src/config_test.json")
 random.seed(SEED)
 initial = create_initial_state(initial_tk, packages)
 
+# final, history, iterations = steepest_ascent(initial)
+
+print("start")
 start = time.perf_counter()
 final, history, probability_history, stuck_history, iterations = simulated_annealing(initial)
 duration = time.perf_counter() - start
+print("end")
 
 record = {
     "algorithm": "hill_climbing_steepest_ascent",
@@ -76,10 +81,10 @@ record = {
     "final_state": aaron_leonhart(final),
 }
 
-os.makedirs("../output", exist_ok=True)
+os.makedirs("./output", exist_ok=True)
 stamp = time.strftime("%Y%m%d-%H%M%S")
-with open(f"../output/hc_steepest_{stamp}.json", "w") as f:
+with open(f"./output/hc_steepest_{stamp}.json", "w") as f:
     f.write(json.dumps(record, indent=4))
 
-print(f"seed={SEED} initial_value={history[0]} final_value={history[-1]} "
-      f"iterations={iterations} duration={duration:.3f}s")
+visualizer = Visualizer(final, truck=initial_tk)
+visualizer.display()
