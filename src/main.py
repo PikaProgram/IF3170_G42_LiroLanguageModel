@@ -2,6 +2,7 @@ from interface.main import Visualizer
 from kelasking import package, truck, state, rotated_orientation
 from algorithms.hillclimbing import steepest_ascent
 from algorithms.simulatedannealing import simulated_annealing
+from algorithms.geneticalgorithm import genetic_algorithm
 import json, os, random, time
 
 SEED = 42
@@ -62,7 +63,7 @@ def aaron_leonhart(s):
     }
 
 
-load("./config_test.json")
+load("./src/config_test.json")
 random.seed(SEED)
 initial = create_initial_state(initial_tk, packages)
 
@@ -70,7 +71,7 @@ initial = create_initial_state(initial_tk, packages)
 
 print("start")
 start = time.perf_counter()
-final, history, probability_history, stuck_history, iterations = simulated_annealing(initial)
+final, history, avg_history, N_population, iterations = genetic_algorithm(initial_tk, packages, 50, 100, 0.05)
 duration = time.perf_counter() - start
 print("end")
 
