@@ -56,12 +56,14 @@ class state:
         self.max_weight = max_weight
         self.current_weight = sum(p.weight for p in inserted_pack)
         self.coords = {}  # package.id -> sudut kiri-bawah-belakang {"x","y","z"}
+        self.orientations = {p.id: dict(p.orientation) for p in inserted_pack + remaining_pack}
         self.fragile_ids = frozenset(p.id for p in inserted_pack + remaining_pack if p.is_fragile)
 
     def copy(self):
         s = state(self.dimentions, list(self.inserted_pack), list(self.remaining_pack), self.max_weight)
         s.space = self.space.copy()
         s.coords = {k: dict(v) for k, v in self.coords.items()}
+        s.orientations = {k: dict(v) for k, v in self.orientations.items()}
         return s
 
     def objective(self):
@@ -93,7 +95,7 @@ class state:
         if self.current_weight > self.max_weight:
             return False
         for p in self.inserted_pack:
-            eff = eff_dims(p.dimentions, p.orientation)
+            eff = eff_dims(p.dimentions, self.orientations[p.id])
             c = self.coords[p.id]
             x0, y0, z0 = c["x"], c["y"], c["z"]
             if z0 > 0 and not any(c is not None for c in self.space[z0 - 1, y0:y0 + eff["y"], x0:x0 + eff["x"]].flat):
@@ -113,7 +115,7 @@ class state:
         if pkg in self.inserted_pack:
             return False
         if orientation is None:
-            orientation = pkg.orientation
+            orientation = self.orientations.get(pkg.id, pkg.orientation)
         if self.current_weight + pkg.weight > self.max_weight:
             return False
         if not self.fits(pkg, orientation, coords):
@@ -123,13 +125,14 @@ class state:
         self.remaining_pack.remove(pkg)
         self.current_weight += pkg.weight
         self.coords[pkg.id] = dict(coords)
+        self.orientations[pkg.id] = dict(orientation)
         return True
 
     def remove_package(self, pkg):
         c = self.coords.pop(pkg.id, None)
         if c is None:
             return
-        eff = eff_dims(pkg.dimentions, pkg.orientation)
+        eff = eff_dims(pkg.dimentions, self.orientations[pkg.id])
         self.space[c["z"]:c["z"] + eff["z"], c["y"]:c["y"] + eff["y"], c["x"]:c["x"] + eff["x"]] = None
         self.remaining_pack.append(pkg)
         self.inserted_pack.remove(pkg)

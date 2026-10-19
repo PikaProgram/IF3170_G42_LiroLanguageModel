@@ -52,14 +52,17 @@ def create_initial_state(trukkun, packages) -> state:
 
 def aaron_leonhart(s):
     return {
-        "packages_inside": [dict(p.jason_susanto(), coords=s.coords[p.id]) for p in sorted(s.inserted_pack, key=lambda q: q.id)],
+        "packages_inside": [
+            dict(p.jason_susanto(), orientation=s.orientations[p.id], coords=s.coords[p.id])
+            for p in sorted(s.inserted_pack, key=lambda q: q.id)
+        ],
         "packages_outside": [p.jason_susanto() for p in sorted(s.remaining_pack, key=lambda q: q.id)],
         "truck": {"dimentions": s.dimentions, "max_capacity": s.max_weight, "space": s.space.tolist()},
         "value": s.objective(),
     }
 
 
-load("./src/config_test.json")
+load("./config_test.json")
 random.seed(SEED)
 initial = create_initial_state(initial_tk, packages)
 

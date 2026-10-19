@@ -20,30 +20,31 @@ def hello_neighbor(cur):
     for i, a in enumerate(ins): 
         for b in ins[i + 1:]:
             s = _apply(cur, [("remove", a), ("remove", b),
-                             ("place", a, a.orientation, cur.coords[b.id]),
-                             ("place", b, b.orientation, cur.coords[a.id])])
+                             ("place", a, cur.orientations[a.id], cur.coords[b.id]),
+                             ("place", b, cur.orientations[b.id], cur.coords[a.id])])
             if s is not None:
                 yield s
     for a in ins:
         for b in outs:
-            s = _apply(cur, [("remove", a), ("place", b, b.orientation, cur.coords[a.id])])
+            s = _apply(cur, [("remove", a), ("place", b, cur.orientations[b.id], cur.coords[a.id])])
             if s is not None:
                 yield s
     for p in ins:
-        eff = eff_dims(p.dimentions, p.orientation)
+        orientation = cur.orientations[p.id]
+        eff = eff_dims(p.dimentions, orientation)
         c0 = cur.coords[p.id]
         for z in range(d["h"] - eff["z"] + 1):
             for y in range(d["l"] - eff["y"] + 1):
                 for x in range(d["w"] - eff["x"] + 1):
                     if x == c0["x"] and y == c0["y"] and z == c0["z"]:
                         continue
-                    s = _apply(cur, [("remove", p), ("place", p, p.orientation, {"x": x, "y": y, "z": z})])
+                    s = _apply(cur, [("remove", p), ("place", p, orientation, {"x": x, "y": y, "z": z})])
                     if s is not None:
                         yield s
     for p in ins:
         c0 = cur.coords[p.id]
         for axis in AXES:
-            orientation = rotated_orientation(p.orientation, axis)
+            orientation = rotated_orientation(cur.orientations[p.id], axis)
             eff = eff_dims(p.dimentions, orientation)
             if (c0["x"] + eff["x"] > d["w"] or c0["y"] + eff["y"] > d["l"]
                     or c0["z"] + eff["z"] > d["h"]):
