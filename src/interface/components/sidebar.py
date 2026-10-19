@@ -53,8 +53,7 @@ def _parse_package(p, i):
             f"Package #{i} 'orientation': must be an object with w, l, h.")
     missing = [k for k in ("w", "l", "h") if k not in orient]
     if missing:
-        raise ValueError(f"Package #{i} 'orientation': missing {
-                         ', '.join(missing)}.")
+        raise ValueError(f"Package #{i} 'orientation': missing {', '.join(missing)}.")
     axes = [orient[k] for k in ("w", "l", "h")]
     if any(a not in ("x", "y", "z") for a in axes) or len(set(axes)) != 3:
         raise ValueError(
@@ -224,7 +223,7 @@ def render_sidebar():
         _truck_section()
         _algorithm_section()
         st.divider()
-        if not st.button("Run", type="primary", use_container_width=True):
+        if not st.button("Run", type="primary", width='stretch'):
             return None
         if not st.session_state["packages"]:
             st.warning("Add at least one package or load a config file.")

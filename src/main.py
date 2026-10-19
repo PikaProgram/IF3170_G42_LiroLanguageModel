@@ -6,6 +6,7 @@ import time
 import streamlit as st
 
 from interface.main import Visualizer
+from interface.components.box import TruckGraph
 from interface.components.sidebar import ALGORITHMS, init_state, render_sidebar, truck_fields
 from kelasking import package, truck, state, rotated_orientation
 from algorithms.steepestascent import steepest_ascent
@@ -106,6 +107,7 @@ def run_algorithm(req):
         "iterations": iterations,
         "duration": duration,
     }
+    st.session_state["fig"] = TruckGraph(final, tk).draw()
 
 
 def result_summary(result):
@@ -122,14 +124,12 @@ requested = render_sidebar()
 if requested:
     run_algorithm(requested)
 
-fields = truck_fields()
-tk = truck({k: fields[k] for k in ("w", "l", "h")}, fields["max_capacity"])
-view_key = json.dumps([st.session_state["packages"], fields], sort_keys=True)
-if st.session_state.get("view_key") != view_key:
-    st.session_state["view_initial"] = build_initial(tk, st.session_state["packages"])
-    st.session_state["view_key"] = view_key
+if "fig" not in st.session_state:
+    fields = truck_fields()
+    tk = truck({k: fields[k] for k in ("w", "l", "h")}, fields["max_capacity"])
+    initial = build_initial(tk, st.session_state["packages"])
+    st.session_state["fig"] = TruckGraph(initial, tk).draw()
 
 result = st.session_state.get("result")
-graph_state = result["final"] if result else st.session_state["view_initial"]
-summary = result_summary(result) if result else None
-Visualizer(graph_state, truck=tk, summary=summary).display()
+Visualizer(st.session_state["fig"],
+           summary=result_summary(result) if result else None).display()
