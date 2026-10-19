@@ -10,7 +10,6 @@ class TruckGraph:
 
     @staticmethod
     def _box_vertices(x, y, z, dx, dy, dz):
-        """Return the eight vertices of an axis-aligned 3D box."""
         return (
             [
                 x, x + dx, x + dx, x,
@@ -34,7 +33,6 @@ class TruckGraph:
         l = self.truck.dimentions["l"]
         h = self.truck.dimentions["h"]
 
-        # Define the truck's eight corners.
         corners = [
             (0, 0, 0),
             (w, 0, 0),
@@ -46,14 +44,12 @@ class TruckGraph:
             (0, l, h),
         ]
 
-        # Twelve edges of the truck.
         edges = [
             (0, 1), (1, 2), (2, 3), (3, 0),
             (4, 5), (5, 6), (6, 7), (7, 4),
             (0, 4), (1, 5), (2, 6), (3, 7),
         ]
 
-        # Separate edges with None to avoid unwanted connecting lines.
         xs, ys, zs = [], [], []
 
         for a, b in edges:
@@ -72,12 +68,10 @@ class TruckGraph:
             )
         )
 
-        # Triangles defining all six faces of a cuboid.
         i = [0, 0, 4, 4, 0, 0, 1, 1, 2, 2, 3, 3]
         j = [1, 2, 5, 6, 1, 5, 2, 6, 3, 7, 0, 4]
         k = [2, 3, 6, 7, 5, 4, 6, 5, 7, 6, 4, 7]
 
-        # Draw every placed package.
         for p in self.state.inserted_pack:
             coords = self.state.coords[p.id]
             eff = eff_dims(p.dimentions, p.orientation)
@@ -99,8 +93,8 @@ class TruckGraph:
                     i=i,
                     j=j,
                     k=k,
-                    color="royalblue",
-                    opacity=0.6,
+                    color="royalblue" if p.is_fragile is False else "red",
+                    opacity=1.0,
                     flatshading=True,
                     name=f"Package {p.id}",
                     hovertemplate=(
@@ -111,8 +105,29 @@ class TruckGraph:
                     ),
                 )
             )
+            vertices = list(zip(x, y, z))
 
-        # Configure the 3D coordinate system.
+            edge_x, edge_y, edge_z = [], [], []
+
+            for a, b in edges:
+                edge_x.extend([vertices[a][0], vertices[b][0], None])
+                edge_y.extend([vertices[a][1], vertices[b][1], None])
+                edge_z.extend([vertices[a][2], vertices[b][2], None])
+
+            fig.add_trace(
+                go.Scatter3d(
+                    x=edge_x,
+                    y=edge_y,
+                    z=edge_z,
+                    mode="lines",
+                    line=dict(
+                        color="black",
+                        width=4,
+                    ),
+                    showlegend=False,
+                    hoverinfo="skip",
+                )
+            )
         fig.update_layout(
             title="Trukkun",
             showlegend=True,

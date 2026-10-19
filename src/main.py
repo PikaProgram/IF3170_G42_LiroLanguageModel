@@ -2,7 +2,10 @@ from interface.main import Visualizer
 from kelasking import package, truck, state, rotated_orientation
 from algorithms.hillclimbing import steepest_ascent
 from algorithms.simulatedannealing import simulated_annealing
-import json, os, random, time
+import json
+import os
+import random
+import time
 
 SEED = 42
 
@@ -15,12 +18,14 @@ def load(path):
     with open(path, "r") as file:
         j = json.load(file)
     for pack in j["packages"]:
-        packages.append(package(pack["id"], pack["dimentions"], pack["orientation"], pack["value"], pack["weight"], pack["is_fragile"], pack["ETA"]))
+        packages.append(package(pack["id"], pack["dimentions"], pack["orientation"],
+                        pack["value"], pack["weight"], pack["is_fragile"], pack["ETA"]))
     initial_tk = truck(j["truck"]["dimentions"], j["truck"]["max_capacity"])
 
 
 def create_initial_state(trukkun, packages) -> state:
-    result = state(trukkun.dimentions, [], packages.copy(), trukkun.max_capacity)
+    result = state(trukkun.dimentions, [],
+                   packages.copy(), trukkun.max_capacity)
     try_packages = packages.copy()
     while try_packages:
         this_package = try_packages.pop(random.randrange(len(try_packages)))
@@ -42,9 +47,12 @@ def create_initial_state(trukkun, packages) -> state:
                         if result.place_package(this_package, {"x": k, "y": j, "z": i}):
                             packed = True
                             break
-                    if packed: break
-                if packed: break
-            if packed: break
+                    if packed:
+                        break
+                if packed:
+                    break
+            if packed:
+                break
         if not packed:
             this_package.orientation = base
     return result
@@ -53,7 +61,8 @@ def create_initial_state(trukkun, packages) -> state:
 def aaron_leonhart(s):
     return {
         "packages_inside": [
-            dict(p.jason_susanto(), orientation=s.orientations[p.id], coords=s.coords[p.id])
+            dict(p.jason_susanto(),
+                 orientation=s.orientations[p.id], coords=s.coords[p.id])
             for p in sorted(s.inserted_pack, key=lambda q: q.id)
         ],
         "packages_outside": [p.jason_susanto() for p in sorted(s.remaining_pack, key=lambda q: q.id)],
@@ -62,7 +71,7 @@ def aaron_leonhart(s):
     }
 
 
-load("./config_test.json")
+load("./src/config_test.json")
 random.seed(SEED)
 initial = create_initial_state(initial_tk, packages)
 
@@ -70,7 +79,8 @@ initial = create_initial_state(initial_tk, packages)
 
 print("start")
 start = time.perf_counter()
-final, history, probability_history, stuck_history, iterations = simulated_annealing(initial)
+final, history, probability_history, stuck_history, iterations = simulated_annealing(
+    initial)
 duration = time.perf_counter() - start
 print("end")
 
