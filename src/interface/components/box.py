@@ -80,7 +80,7 @@ class TruckGraph:
         # Draw every placed package.
         for p in self.state.inserted_pack:
             coords = self.state.coords[p.id]
-            eff = eff_dims(p.dimentions, p.orientation)
+            eff = eff_dims(p.dimentions, self.state.orientations[p.id])
 
             x, y, z = self._box_vertices(
                 coords["x"],
