@@ -8,7 +8,7 @@ import streamlit as st
 from interface.main import Visualizer
 from interface.components.sidebar import ALGORITHMS, init_state, render_sidebar, truck_fields
 from kelasking import package, truck, state, rotated_orientation
-from algorithms.hillclimbing import steepest_ascent
+from algorithms.steepestascent import steepest_ascent
 from algorithms.simulatedannealing import simulated_annealing
 
 SEED = 42
