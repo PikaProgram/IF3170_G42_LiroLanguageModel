@@ -98,6 +98,14 @@ class state:
             eff = eff_dims(p.dimentions, self.orientations[p.id])
             c = self.coords[p.id]
             x0, y0, z0 = c["x"], c["y"], c["z"]
+            if (x0 < 0 or y0 < 0 or z0 < 0
+                    or x0 + eff["x"] > self.dimentions["w"]
+                    or y0 + eff["y"] > self.dimentions["l"]
+                    or z0 + eff["z"] > self.dimentions["h"]):
+                return False
+            region = self.space[z0:z0 + eff["z"], y0:y0 + eff["y"], x0:x0 + eff["x"]]
+            if any(cell != p.id for cell in region.flat):
+                return False
             if z0 > 0 and not any(c is not None for c in self.space[z0 - 1, y0:y0 + eff["y"], x0:x0 + eff["x"]].flat):
                 return False  # melayang
             if (p.is_fragile and z0 + eff["z"] < self.dimentions["h"]
