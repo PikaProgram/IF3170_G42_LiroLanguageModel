@@ -81,6 +81,7 @@ def hello_neighbor(cur):
 def simulated_annealing(initial, temp=100.0, cooling_rate=0.995, minimum_temp=0.01):
     cur = initial
     history = [cur.objective()]
+    average_history = [cur.objective()]
     probability_history = []
     stuck_history = []
     iterations = 0
@@ -90,9 +91,11 @@ def simulated_annealing(initial, temp=100.0, cooling_rate=0.995, minimum_temp=0.
         if succ is None:
             break
         curr_value = cur.objective()
-        stuck_history.append(succ.objective() <= curr_value)
-        delta_e = succ.objective() - curr_value
+        succ_value = succ.objective()
+        stuck_history.append(succ_value <= curr_value)
+        delta_e = succ_value - curr_value
         probability = math.exp(delta_e / temp)
+        average_history.append(succ_value)
 
         if delta_e > 0:
             cur = succ    
@@ -104,4 +107,4 @@ def simulated_annealing(initial, temp=100.0, cooling_rate=0.995, minimum_temp=0.
         probability_history.append(probability)
         temp, iterations = temp * cooling_rate, iterations + 1
 
-    return cur, history, probability_history, stuck_history, iterations
+    return cur, history, average_history, probability_history, stuck_history, iterations

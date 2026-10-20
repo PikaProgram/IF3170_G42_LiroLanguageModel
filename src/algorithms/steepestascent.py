@@ -56,14 +56,18 @@ def neighbors(cur):
 def steepest_ascent(initial):
     cur = initial
     history = [cur.objective()]
+    average_history = [cur.objective()]
     iterations = 0
     while True:
         best, best_val = None, cur.objective()
+        values = []
         for s in neighbors(cur):
             v = s.objective()
+            values.append(v)
             if v > best_val:
                 best, best_val = s, v
         if best is None:
-            return cur, history, iterations
+            return cur, history, average_history, iterations
         cur, iterations = best, iterations + 1
         history.append(best_val)
+        average_history.append(sum(values) / len(values))

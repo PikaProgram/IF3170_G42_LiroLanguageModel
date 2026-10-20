@@ -7,6 +7,7 @@ import streamlit as st
 
 from interface.main import Visualizer
 from interface.components.box import TruckGraph
+from interface.components.charts import AcceptanceProbabilityGraph, ObjectiveGraph
 from interface.components.sidebar import ALGORITHMS, init_state, render_sidebar, truck_fields
 from kelasking import package, truck, state, rotated_orientation
 from algorithms.steepestascent import steepest_ascent
@@ -79,15 +80,15 @@ def run_algorithm(req):
     with st.spinner("Running algorithm..."):
         initial = build_initial(tk, st.session_state["packages"])
         started = time.perf_counter()
-        average_history = None
+        probability_history = None
         if req["algorithm"] == "hc":
-            final, history, iterations = steepest_ascent(initial)
+            final, history, average_history, iterations = steepest_ascent(initial)
         elif req["algorithm"] == "hc_sideways":
-            final, history, iterations = hill_climbing_sideways(
+            final, history, average_history, iterations = hill_climbing_sideways(
                 initial, **req["params"])
         elif req["algorithm"] == "sa":
-            final, history, _, _, iterations = simulated_annealing(
-                initial, **req["params"])
+            final, history, average_history, probability_history, _, iterations = \
+                simulated_annealing(initial, **req["params"])
         else:
             final, history, average_history, _, iterations = genetic_algorithm(
                 initial, **req["params"])
@@ -101,11 +102,12 @@ def run_algorithm(req):
         "duration_seconds": round(duration, 4),
         "iterations": iterations,
         "objective_history": history,
+        "average_objective_history": average_history,
         "initial_state": aaron_leonhart(initial),
         "final_state": aaron_leonhart(final),
     }
-    if average_history is not None:
-        record["average_objective_history"] = average_history
+    if probability_history is not None:
+        record["probability_history"] = probability_history
     os.makedirs("./output", exist_ok=True)
     stamp = time.strftime("%Y%m%d-%H%M%S")
     with open(f"./output/{meta['record']}_{stamp}.json", "w") as f:
@@ -120,6 +122,10 @@ def run_algorithm(req):
         "duration": duration,
     }
     st.session_state["fig"] = TruckGraph(final, tk).draw()
+    charts = [ObjectiveGraph(history, average_history).draw()]
+    if probability_history is not None:
+        charts.append(AcceptanceProbabilityGraph(probability_history).draw())
+    st.session_state["charts"] = charts
 
 
 def result_summary(result):
@@ -144,4 +150,5 @@ if "fig" not in st.session_state:
 
 result = st.session_state.get("result")
 Visualizer(st.session_state["fig"],
-           summary=result_summary(result) if result else None).display()
+           summary=result_summary(result) if result else None,
+           charts=st.session_state.get("charts")).display()

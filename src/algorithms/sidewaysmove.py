@@ -5,11 +5,14 @@ from algorithms.steepestascent import neighbors
 def hill_climbing_sideways(initial, max_sideways=100):
     cur = initial
     history = [cur.objective()]
+    average_history = [cur.objective()]
     iterations = sideways = 0
     while True:
         best, best_val, ties = None, cur.objective(), []
+        values = []
         for s in neighbors(cur):
             v = s.objective()
+            values.append(v)
             if v > best_val:
                 best, best_val, ties = s, v, []
             elif v == best_val:
@@ -23,4 +26,6 @@ def hill_climbing_sideways(initial, max_sideways=100):
             sideways = 0
         cur, iterations = best, iterations + 1
         history.append(cur.objective())
-    return cur, history, iterations
+        average_history.append(
+            sum(values) / len(values) if values else cur.objective())
+    return cur, history, average_history, iterations
