@@ -3,9 +3,10 @@ from kelasking import eff_dims, state as State, truck as Truck
 
 
 class TruckGraph:
-    def __init__(self, state: State, truck: Truck):
+    def __init__(self, state: State, truck: Truck, title: str = "Trukkun"):
         self.state = state
         self.truck = truck
+        self.title = title
 
     @staticmethod
     def _box_vertices(x, y, z, dx, dy, dz):
@@ -128,7 +129,7 @@ class TruckGraph:
                 )
             )
         fig.update_layout(
-            title="Trukkun",
+            title=self.title,
             showlegend=True,
             scene=dict(
                 xaxis=dict(range=[0, w], title="Width"),

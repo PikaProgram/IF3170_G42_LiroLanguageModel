@@ -17,6 +17,8 @@ from algorithms.geneticalgorithm import genetic_algorithm
 
 SEED = 42
 
+st.set_page_config(layout="wide")
+
 
 def create_initial_state(trukkun, packages) -> state:
     result = state(trukkun.dimentions, [],
@@ -121,7 +123,8 @@ def run_algorithm(req):
         "iterations": iterations,
         "duration": duration,
     }
-    st.session_state["fig"] = TruckGraph(final, tk).draw()
+    st.session_state["fig"] = TruckGraph(final, tk, "Final state").draw()
+    st.session_state["initial_fig"] = TruckGraph(initial, tk, "Initial state").draw()
     charts = [ObjectiveGraph(history, average_history).draw()]
     if probability_history is not None:
         charts.append(AcceptanceProbabilityGraph(probability_history).draw())
@@ -151,4 +154,5 @@ if "fig" not in st.session_state:
 result = st.session_state.get("result")
 Visualizer(st.session_state["fig"],
            summary=result_summary(result) if result else None,
-           charts=st.session_state.get("charts")).display()
+           charts=st.session_state.get("charts"),
+           left_fig=st.session_state.get("initial_fig")).display()
