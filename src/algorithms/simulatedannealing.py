@@ -86,7 +86,7 @@ def simulated_annealing(initial, temp=100.0, cooling_rate=0.995, minimum_temp=0.
     stuck_history = []
     iterations = 0
     
-    while temp > minimum_temp:
+    while temp > minimum_temp and iterations <= 10000:
         succ = hello_neighbor(cur)
         if succ is None:
             break
