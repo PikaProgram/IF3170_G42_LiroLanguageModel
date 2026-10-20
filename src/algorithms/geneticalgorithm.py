@@ -54,8 +54,32 @@ def _placement_candidates(chromosome, package_id):
         )
     ]
 
+
+def _force_place(chromosome, pkg, coords, orientation):
+    dimensions = eff_dims(pkg.dimentions, orientation)
+    if (
+        coords["x"] < 0
+        or coords["y"] < 0
+        or coords["z"] < 0
+        or coords["x"] + dimensions["x"] > chromosome.dimentions["w"]
+        or coords["y"] + dimensions["y"] > chromosome.dimentions["l"]
+        or coords["z"] + dimensions["z"] > chromosome.dimentions["h"]
+        or chromosome.current_weight + pkg.weight > chromosome.max_weight
+    ):
+        return False
+
+    chromosome._write(pkg, orientation, coords)
+    chromosome.inserted_pack.append(pkg)
+    chromosome.remaining_pack.remove(pkg)
+    chromosome.current_weight += pkg.weight
+    chromosome.coords[pkg.id] = dict(coords)
+    chromosome.orientations[pkg.id] = dict(orientation)
+    return True
+
+
 def kawin(chromosome_a, chromosome_b):
-    # cross package from one state with another state, if invalid try another coordinate
+    # Cross package placements from both parents. If a placement conflicts
+    # with an earlier inherited placement, keep it and let fitness penalize it.
     parent_packages = _package_by_id(chromosome_a)
     parent_packages.update(_package_by_id(chromosome_b))
     child = state(chromosome_a.dimentions, [], [copy.copy(pkg) for pkg in parent_packages.values()], chromosome_a.max_weight)
@@ -79,7 +103,7 @@ def kawin(chromosome_a, chromosome_b):
             if child.place_package(child_pkg, coords, orientation):
                 placed = True
                 break
-            if _place_at_any_valid_position(child, child_pkg, orientation):
+            if _force_place(child, child_pkg, coords, orientation):
                 placed = True
                 break
         if not placed:
@@ -193,8 +217,8 @@ def genetic_algorithm(initial, population_size=50, generations=100, mutation_rat
     population = create_initial_population(trukkun, packages, population_size)
     population[0] = initial.copy()
 
-    max_objective_history = [max(chromosome.objective() for chromosome in population)]
-    average_objective_history = [sum(chromosome.objective() for chromosome in population) / population_size]
+    max_objective_history = [max(fitness(chromosome) for chromosome in population)]
+    average_objective_history = [sum(fitness(chromosome) for chromosome in population) / population_size]
 
     for _ in range(generations):
         scores = [fitness(chromosome) for chromosome in population]
@@ -207,7 +231,7 @@ def genetic_algorithm(initial, population_size=50, generations=100, mutation_rat
                 child = mutate(child)
             new_population.append(child)
         population = new_population
-        objectives = [chromosome.objective() for chromosome in population]
+        objectives = [fitness(chromosome) for chromosome in population]
         max_objective_history.append(max(objectives))
         average_objective_history.append(sum(objectives) / population_size)
 
