@@ -83,13 +83,14 @@ def run_algorithm(req):
         initial = build_initial(tk, st.session_state["packages"])
         started = time.perf_counter()
         probability_history = None
+        stuck_history = None
         if req["algorithm"] == "hc":
             final, history, average_history, iterations = steepest_ascent(initial)
         elif req["algorithm"] == "hc_sideways":
             final, history, average_history, iterations = hill_climbing_sideways(
                 initial, **req["params"])
         elif req["algorithm"] == "sa":
-            final, history, average_history, probability_history, _, iterations = \
+            final, history, average_history, probability_history, stuck_history, iterations = \
                 simulated_annealing(initial, **req["params"])
         else:
             final, history, average_history, _, iterations = genetic_algorithm(
@@ -110,6 +111,8 @@ def run_algorithm(req):
     }
     if probability_history is not None:
         record["probability_history"] = probability_history
+    if stuck_history is not None:
+        record["stuck_history"] = stuck_history
     os.makedirs("./output", exist_ok=True)
     stamp = time.strftime("%Y%m%d-%H%M%S")
     with open(f"./output/{meta['record']}_{stamp}.json", "w") as f:

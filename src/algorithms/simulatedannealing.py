@@ -83,7 +83,7 @@ def simulated_annealing(initial, temp=100.0, cooling_rate=0.995, minimum_temp=0.
     history = [cur.objective()]
     average_history = [cur.objective()]
     probability_history = []
-    stuck_history = []
+    stuck_history = 0
     iterations = 0
     
     while temp > minimum_temp and iterations <= 10000:
@@ -92,9 +92,10 @@ def simulated_annealing(initial, temp=100.0, cooling_rate=0.995, minimum_temp=0.
             break
         curr_value = cur.objective()
         succ_value = succ.objective()
-        stuck_history.append(succ_value <= curr_value)
+        if succ_value <= curr_value:
+            stuck_history +=1
         delta_e = succ_value - curr_value
-        probability = math.exp(delta_e / temp)
+        probability = 1.0 if delta_e >= 0 else math.exp(delta_e / temp)
         average_history.append(succ_value)
 
         if delta_e > 0:
