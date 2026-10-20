@@ -1,0 +1,24 @@
+{
+    "packages" : [
+        {"id" : 1,  "dimentions" : {"w" : 4, "l" : 4, "h" : 2}, "orientation" : {"w" : "x", "l" : "y", "h" : "z"}, "value" : 100, "weight" : 40, "is_fragile" : false, "ETA" : 5},
+        {"id" : 2,  "dimentions" : {"w" : 3, "l" : 3, "h" : 3}, "orientation" : {"w" : "x", "l" : "y", "h" : "z"}, "value" : 90,  "weight" : 50, "is_fragile" : false, "ETA" : 4},
+        {"id" : 3,  "dimentions" : {"w" : 2, "l" : 2, "h" : 2}, "orientation" : {"w" : "x", "l" : "y", "h" : "z"}, "value" : 70,  "weight" : 20, "is_fragile" : false, "ETA" : 2},
+        {"id" : 4,  "dimentions" : {"w" : 2, "l" : 2, "h" : 2}, "orientation" : {"w" : "x", "l" : "y", "h" : "z"}, "value" : 75,  "weight" : 22, "is_fragile" : true,  "ETA" : 3},
+        {"id" : 5,  "dimentions" : {"w" : 2, "l" : 2, "h" : 1}, "orientation" : {"w" : "x", "l" : "y", "h" : "z"}, "value" : 50,  "weight" : 15, "is_fragile" : false, "ETA" : 1},
+        {"id" : 6,  "dimentions" : {"w" : 2, "l" : 1, "h" : 1}, "orientation" : {"w" : "x", "l" : "y", "h" : "z"}, "value" : 40,  "weight" : 8,  "is_fragile" : false, "ETA" : 6},
+        {"id" : 7,  "dimentions" : {"w" : 1, "l" : 1, "h" : 1}, "orientation" : {"w" : "x", "l" : "y", "h" : "z"}, "value" : 35,  "weight" : 5,  "is_fragile" : true,  "ETA" : 2},
+        {"id" : 8,  "dimentions" : {"w" : 3, "l" : 2, "h" : 2}, "orientation" : {"w" : "x", "l" : "y", "h" : "z"}, "value" : 85,  "weight" : 35, "is_fragile" : false, "ETA" : 7},
+        {"id" : 9,  "dimentions" : {"w" : 2, "l" : 3, "h" : 1}, "orientation" : {"w" : "x", "l" : "y", "h" : "z"}, "value" : 55,  "weight" : 18, "is_fragile" : false, "ETA" : 3},
+        {"id" : 10, "dimentions" : {"w" : 1, "l" : 1, "h" : 3}, "orientation" : {"w" : "x", "l" : "y", "h" : "z"}, "value" : 45,  "weight" : 10, "is_fragile" : false, "ETA" : 4},
+        {"id" : 11, "dimentions" : {"w" : 4, "l" : 2, "h" : 1}, "orientation" : {"w" : "x", "l" : "y", "h" : "z"}, "value" : 60,  "weight" : 25, "is_fragile" : true,  "ETA" : 8},
+        {"id" : 12, "dimentions" : {"w" : 2, "l" : 2, "h" : 3}, "orientation" : {"w" : "x", "l" : "y", "h" : "z"}, "value" : 88,  "weight" : 30, "is_fragile" : false, "ETA" : 5}
+    ],
+    "truck" : {
+        "dimentions" : {
+            "w" : 4,
+            "l" : 4,
+            "h" : 4
+        },
+        "max_capacity" : 1000
+    }
+}
